@@ -1,13 +1,14 @@
-import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import { MapComponent } from './MapComponent';
 
-
 function App() {
+  
   return (
-    <MapComponent />
+    <div style={{ display: "flex", height: "100%", flexDirection: "column" }}>
+      <MapComponent />
+    </div>
   );
+
 }
 
 export default App;
