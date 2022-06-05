@@ -3,7 +3,7 @@ import { Component } from "react";
 import { initializeApp } from 'firebase/app';
 import { getFirestore, getDoc, doc } from "firebase/firestore";
 import { Map } from "./Map";
-import { Wrapper, Status } from "@googlemaps/react-wrapper";
+import { Wrapper } from "@googlemaps/react-wrapper";
 import { Marker } from "./Marker";
 //import { isLatLngLiteral } from "@googlemaps/typescript-guards";
 

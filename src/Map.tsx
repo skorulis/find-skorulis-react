@@ -62,32 +62,8 @@ interface MapProps extends google.maps.MapOptions {
     );
   };
   
-  const Marker: React.FC<google.maps.MarkerOptions> = (options) => {
-    const [marker, setMarker] = React.useState<google.maps.Marker>();
   
-    React.useEffect(() => {
-      if (!marker) {
-        setMarker(new google.maps.Marker());
-      }
-  
-      // remove marker from map on unmount
-      return () => {
-        if (marker) {
-          marker.setMap(null);
-        }
-      };
-    }, [marker]);
-  
-    React.useEffect(() => {
-      if (marker) {
-        marker.setOptions(options);
-      }
-    }, [marker, options]);
-  
-    return null;
-  };
-  
-  const deepCompareEqualsForMaps = createCustomEqual(
+const deepCompareEqualsForMaps = createCustomEqual(
     (deepEqual) => (a: any, b: any) => {
       if (
         isLatLngLiteral(a) ||
@@ -103,9 +79,9 @@ interface MapProps extends google.maps.MapOptions {
       // use fast-equals for other objects
       return deepEqual(a, b);
     }
-  );
+);
   
-  function useDeepCompareMemoize(value: any) {
+function useDeepCompareMemoize(value: any) {
     const ref = React.useRef();
   
     if (!deepCompareEqualsForMaps(value, ref.current)) {
@@ -113,11 +89,11 @@ interface MapProps extends google.maps.MapOptions {
     }
   
     return ref.current;
-  }
+}
   
-  function useDeepCompareEffectForMaps(
+function useDeepCompareEffectForMaps(
     callback: React.EffectCallback,
     dependencies: any[]
   ) {
     React.useEffect(callback, dependencies.map(useDeepCompareMemoize));
-  }
+}
