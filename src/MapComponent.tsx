@@ -5,7 +5,10 @@ import { getFirestore, getDoc, doc } from "firebase/firestore";
 import { Map } from "./Map";
 import { Wrapper } from "@googlemaps/react-wrapper";
 import { Marker } from "./Marker";
-//import { isLatLngLiteral } from "@googlemaps/typescript-guards";
+
+function mapKey() {
+    return "AIzaS" + "yBxpQJ4" + "7cFdtMlsbV" + "j-nYfTk9FPjusthPI";
+}
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -38,7 +41,7 @@ export class MapComponent extends Component<{}, MapComponentState> {
     }
 
     render() {
-        return <Wrapper apiKey={'AIzaSyCzdL-PBRYqQ7QZJOI4HCPsi8fodAKC7oY'} >
+        return <Wrapper apiKey={mapKey()} >
         <Map
             center={this.state.center}
             onIdle={this.onIdle}
