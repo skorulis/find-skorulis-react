@@ -5,6 +5,7 @@ import { getFirestore, getDoc, doc } from "firebase/firestore";
 import { Map } from "./Map";
 import { Wrapper } from "@googlemaps/react-wrapper";
 import { Marker } from "./Marker";
+import moment from "moment";
 
 function mapKey() {
     return "AIzaS" + "yBxpQJ4" + "7cFdtMlsbV" + "j-nYfTk9FPjusthPI";
@@ -30,6 +31,7 @@ type MapComponentState = {
     marker?: google.maps.LatLngLiteral
     center?: google.maps.LatLngLiteral
     zoom: number
+    updated?: string
 }
 
 export class MapComponent extends Component<{}, MapComponentState> {
@@ -42,6 +44,7 @@ export class MapComponent extends Component<{}, MapComponentState> {
 
     render() {
         return <Wrapper apiKey={mapKey()} >
+            
         <Map
             center={this.state.center}
             onIdle={this.onIdle}
@@ -50,7 +53,16 @@ export class MapComponent extends Component<{}, MapComponentState> {
         >
             <Marker position={this.state.center} />
         </Map>
+        {this.maybeUpdateTime()}
         </Wrapper>
+    }
+
+    maybeUpdateTime() {
+        if (this.state.updated) {
+            return <h2 style={{paddingLeft:16}} >Last updated: {this.state.updated} </h2>
+        } else {
+            return undefined
+        }
     }
 
     onIdle(m: google.maps.Map) {
@@ -81,8 +93,11 @@ export class MapComponent extends Component<{}, MapComponentState> {
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
                 let data = docSnap.data()
+                let time = moment(data.date * 1000);
+                let updated = time.fromNow()
+                
                 let pos: google.maps.LatLngLiteral =  {lat: data.lat, lng: data.lng}
-                this.setState({center: pos, marker: pos})
+                this.setState({center: pos, marker: pos, updated})
             } else {
               // doc.data() will be undefined in this case
               console.log("No such document!");
