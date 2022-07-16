@@ -51,7 +51,7 @@ export class MapComponent extends Component<{}, MapComponentState> {
             zoom={this.state.zoom}
             style={{ flexGrow: "1", height: "100%" }}
         >
-            <Marker position={this.state.center} />
+            <Marker position={this.state.marker} />
         </Map>
         {this.maybeUpdateTime()}
         </Wrapper>
