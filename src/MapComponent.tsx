@@ -6,6 +6,7 @@ import { Map } from "./Map";
 import { Wrapper } from "@googlemaps/react-wrapper";
 import { Marker } from "./Marker";
 import moment from "moment";
+import { Beer } from "./model/Beer";
 
 function mapKey() {
     return "AIzaS" + "yBxpQJ4" + "7cFdtMlsbV" + "j-nYfTk9FPjusthPI";
@@ -32,6 +33,7 @@ type MapComponentState = {
     center?: google.maps.LatLngLiteral
     zoom: number
     updated?: string
+    beer?: Beer
 }
 
 export class MapComponent extends Component<{}, MapComponentState> {
@@ -53,20 +55,40 @@ export class MapComponent extends Component<{}, MapComponentState> {
         >
             <Marker position={this.state.marker} />
         </Map>
-        {this.maybeUpdateTime()}
+        <div style={{paddingLeft:16}}>
+            {this.maybeUpdateTime()}
+            {this.maybeCurrentBeer()}
+        </div>
         </Wrapper>
     }
 
     maybeUpdateTime() {
         if (this.state.updated) {
-            return <h2 style={{paddingLeft:16}} >Last updated: {this.state.updated} </h2>
+            return <h2>Last updated: {this.state.updated} </h2>
         } else {
             return undefined
         }
     }
 
+    maybeCurrentBeer() {
+        let beer = this.state.beer
+        if (!beer) {
+            return
+        }
+        let current = moment();
+        let time = moment(beer.date.seconds * 1000);
+        let diff =  current.diff(time, "seconds")
+        let maxTime = 3600 * 0.5
+        if (diff > maxTime) {
+            return
+        }
+
+        let pct = beer.pct.length > 0 ? `${beer.pct}%` : "";
+        return <h2 >Currently drinking: {beer.name} {pct}</h2>
+    }
+
     onIdle(m: google.maps.Map) {
-        console.log("onIdle");
+        console.log("onIdle2");
         this.setState({zoom: m.getZoom(), center: m.getCenter().toJSON()})
       };
 
@@ -85,9 +107,12 @@ export class MapComponent extends Component<{}, MapComponentState> {
         }
     }
 
-    
-
     async componentDidMount() {
+        this.loadLocation()
+        this.loadBeer()
+    }
+
+    async loadLocation() {
         try {
             const docRef = doc(db, "location", "skorulis");
             const docSnap = await getDoc(docRef);
@@ -106,6 +131,24 @@ export class MapComponent extends Component<{}, MapComponentState> {
             console.log("MAP ERROR")
             console.log(e)
           }
+    }
+
+    async loadBeer() {
+        try {
+            const docRef = doc(db, "beers", "skorulis");
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                let data = docSnap.data();
+                let beer: Beer = data as Beer
+                console.log("Got a beer: ")
+                console.log(beer);
+                this.setState({beer})
+            } else {
+                console.log("No beer to find")
+            }
+        } catch(e) {
+            console.log(e)
+        }
     }
     
 }
