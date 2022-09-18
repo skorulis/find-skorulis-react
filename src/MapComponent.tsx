@@ -5,6 +5,7 @@ import { getFirestore, getDoc, doc } from "firebase/firestore";
 import { Map } from "./Map";
 import { Wrapper } from "@googlemaps/react-wrapper";
 import { Marker } from "./Marker";
+import { AccuracyCircle } from "./AccuracyCircle"
 import moment from "moment";
 import { Beer } from "./model/Beer";
 
@@ -30,6 +31,7 @@ const db = getFirestore(app);
 
 type MapComponentState = {
     marker?: google.maps.LatLngLiteral
+    accuracy?: number
     center?: google.maps.LatLngLiteral
     zoom: number
     updated?: string
@@ -54,6 +56,19 @@ export class MapComponent extends Component<{}, MapComponentState> {
             style={{ flexGrow: "1", height: "100%" }}
         >
             <Marker position={this.state.marker} />
+            if (this.state.accuracy) {
+                <AccuracyCircle 
+                radius={this.state.accuracy}
+                center={this.state.marker}
+                strokeColor='#1aa086'
+                strokeOpacity={0.8}
+                strokeWeight={2}
+                fillColor="#1aa086"
+                fillOpacity={0.3}
+ 
+            />
+            }
+            
         </Map>
         <div style={{paddingLeft:16}}>
             {this.maybeUpdateTime()}
@@ -61,6 +76,7 @@ export class MapComponent extends Component<{}, MapComponentState> {
         </div>
         </Wrapper>
     }
+
 
     maybeUpdateTime() {
         if (this.state.updated) {
@@ -92,21 +108,6 @@ export class MapComponent extends Component<{}, MapComponentState> {
         this.setState({zoom: m.getZoom(), center: m.getCenter().toJSON()})
       };
 
-    maybeMap() {
-        if (this.state.marker && this.state.center) {
-            <Map
-                center={this.state.center}
-                onIdle={this.onIdle}
-                zoom={this.state.zoom}
-                style={{ flexGrow: "1", height: "100%" }}
-            >
-            
-            </Map>
-        } else {
-            return <p>Finding skorulis</p>
-        }
-    }
-
     async componentDidMount() {
         this.loadLocation()
         this.loadBeer()
@@ -122,7 +123,8 @@ export class MapComponent extends Component<{}, MapComponentState> {
                 let updated = time.fromNow()
                 
                 let pos: google.maps.LatLngLiteral =  {lat: data.lat, lng: data.lng}
-                this.setState({center: pos, marker: pos, updated})
+                let accuracy: number = data.accuracy
+                this.setState({center: pos, marker: pos, updated, accuracy})
             } else {
               // doc.data() will be undefined in this case
               console.log("No such document!");
