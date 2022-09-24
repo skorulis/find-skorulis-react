@@ -1,6 +1,7 @@
 
 import { Component } from "react"; 
 import { initializeApp } from 'firebase/app';
+import { getAnalytics, logEvent } from "firebase/analytics";
 import { getFirestore, getDoc, doc } from "firebase/firestore";
 import { Map } from "./Map";
 import { Wrapper } from "@googlemaps/react-wrapper";
@@ -20,7 +21,8 @@ const firebaseConfig = {
     projectId: "find-skorulis",
     storageBucket: "find-skorulis.appspot.com",
     messagingSenderId: "1030629674057",
-    appId: "1:1030629674057:web:b47ddef5714cd22fa88398"
+    appId: "1:1030629674057:web:b47ddef5714cd22fa88398",
+    measurementId: "G-D447L369ZQ"
   };
   
 // Initialize Firebase
@@ -28,6 +30,7 @@ const app = initializeApp(firebaseConfig);
 
 // Initialize Cloud Firestore and get a reference to the service
 const db = getFirestore(app);
+const analytics = getAnalytics(app);
 
 type MapComponentState = {
     marker?: google.maps.LatLngLiteral
@@ -125,8 +128,10 @@ export class MapComponent extends Component<{}, MapComponentState> {
                 let pos: google.maps.LatLngLiteral =  {lat: data.lat, lng: data.lng}
                 let accuracy: number = data.accuracy
                 this.setState({center: pos, marker: pos, updated, accuracy})
+                logEvent(analytics, 'loaded_location');
             } else {
               // doc.data() will be undefined in this case
+              logEvent(analytics, 'failed_location');
               console.log("No such document!");
             }
           } catch(e) {
@@ -145,6 +150,7 @@ export class MapComponent extends Component<{}, MapComponentState> {
                 console.log("Got a beer: ")
                 console.log(beer);
                 this.setState({beer})
+                logEvent(analytics, 'loaded_beer');
             } else {
                 console.log("No beer to find")
             }
